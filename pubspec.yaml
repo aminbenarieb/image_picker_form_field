@@ -4,7 +4,7 @@ version: 0.0.1
 repository: https://github.com/gsrajeni/image_picker_form_field.git
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.16.0 <3.0.0"
   flutter: ">=1.20.0"
 
 dependencies:

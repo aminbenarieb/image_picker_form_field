@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ImageSourceSelectionDialog extends StatefulWidget {
-  Function callback;
+  final Function? callback;
 
-  ImageSourceSelectionDialog(callback) {
-    this.callback = callback;
-  }
+  ImageSourceSelectionDialog({this.callback});
 
   @override
   ImageSourceSelectionDialogState createState() =>
@@ -14,7 +12,7 @@ class ImageSourceSelectionDialog extends StatefulWidget {
 
 class ImageSourceSelectionDialogState
     extends State<ImageSourceSelectionDialog> {
-  Function callback;
+  Function? callback;
 
   ImageSourceSelectionDialogState(callback) {
     this.callback = callback;
@@ -50,7 +48,9 @@ class ImageSourceSelectionDialogState
                   Spacer(),
                   GestureDetector(
                     onTap: () {
-                      callback("camera");
+                      if (callback != null) {
+                        callback!('camera');
+                      }
                       Navigator.of(context).pop();
                     },
                     child: Column(
@@ -61,7 +61,7 @@ class ImageSourceSelectionDialogState
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyText1
-                                .copyWith(
+                                ?.copyWith(
                                     color: Theme.of(context).primaryColor,
                                     fontWeight: FontWeight.w500),
                             textAlign: TextAlign.start)
@@ -71,7 +71,9 @@ class ImageSourceSelectionDialogState
                   Spacer(),
                   GestureDetector(
                     onTap: () {
-                      callback("gallery");
+                      if (callback != null) {
+                        callback!("gallery");
+                      }
                       Navigator.of(context).pop();
                     },
                     child: Column(
@@ -81,7 +83,7 @@ class ImageSourceSelectionDialogState
                         Text("Gallery",
                             style: Theme.of(context)
                                 .textTheme
-                                .bodyText1
+                                .bodyText1!
                                 .copyWith(
                                     color: Theme.of(context).primaryColor,
                                     fontWeight: FontWeight.w500),

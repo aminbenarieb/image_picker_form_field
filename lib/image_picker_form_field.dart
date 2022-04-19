@@ -7,21 +7,21 @@ import 'package:image_picker/image_picker.dart';
 import 'ImageSourceSelectionDialog.dart';
 
 class ImagePickerFormField extends FormField<File> {
-  bool previewEnabled = true;
-  Widget child;
+  final bool previewEnabled;
+  final Widget child;
   ImagePickerFormField(
-      {@required BuildContext context,
-      FormFieldSetter<File> onSaved,
-      FormFieldValidator<File> validator,
-      File initialValue,
-      bool autovalidate = false,
-      this.previewEnabled = true,
-      @required this.child})
+      {required BuildContext context,
+      FormFieldSetter<File>? onSaved,
+      FormFieldValidator<File>? validator,
+      File? initialValue,
+      AutovalidateMode autovalidateMode = AutovalidateMode.always,
+      required this.previewEnabled,
+      required this.child})
       : super(
             onSaved: onSaved,
             validator: validator,
             initialValue: initialValue,
-            autovalidate: autovalidate,
+            autovalidateMode: autovalidateMode,
             builder: (FormFieldState<File> state) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -30,16 +30,17 @@ class ImagePickerFormField extends FormField<File> {
                       onTap: () async {
                         FocusScope.of(context).unfocus();
                         ImagePicker imagePicker = ImagePicker();
-                        PickedFile image;
+                        XFile? image;
                         ImageSourceSelectionDialog dialog =
-                            ImageSourceSelectionDialog((source) async {
+                            ImageSourceSelectionDialog(
+                                callback: (source) async {
                           if (source == 'gallery') {
-                            image = await imagePicker.getImage(
+                            image = await imagePicker.pickImage(
                                 source: ImageSource.gallery,
                                 imageQuality: 100,
                                 preferredCameraDevice: CameraDevice.front);
                           } else
-                            image = await imagePicker.getImage(
+                            image = await imagePicker.pickImage(
                                 source: ImageSource.camera,
                                 imageQuality: 100,
                                 preferredCameraDevice: CameraDevice.front);
@@ -57,34 +58,32 @@ class ImagePickerFormField extends FormField<File> {
                   ),
                   if (previewEnabled && state.value != null)
                     Image.file(
-                      state.value,
+                      state.value!,
                       height: 300,
                       width: double.infinity,
                       fit: BoxFit.fill,
                     ),
                   if (state.value != null)
                     Text(
-                      "Name: " + state.value.path.split('/').last,
-                      style: Theme.of(context)
-                          .textTheme
-                          .caption
-                          .copyWith(color: Theme.of(context).accentColor),
+                      "Name: " + state.value!.path.split('/').last,
+                      style: Theme.of(context).textTheme.caption!.copyWith(
+                          color: Theme.of(context).colorScheme.secondary),
                     ),
                   if (state.errorText != null)
                     Text(
-                      state.errorText,
+                      state.errorText!,
                       style: Theme.of(context)
                           .textTheme
-                          .caption
+                          .caption!
                           .copyWith(color: Colors.red),
                     )
                 ],
               );
             });
 
-  static Future<void> cropImage(PickedFile image, state) async {
+  static Future<void> cropImage(XFile? image, state) async {
     if (image != null) {
-      File imageFile = await ImageCropper.cropImage(
+      File? imageFile = await ImageCropper().cropImage(
         sourcePath: image.path,
         compressQuality: 100,
       );
