@@ -83,7 +83,7 @@ class ImagePickerFormField extends FormField<File> {
 
   static Future<void> cropImage(XFile? image, state) async {
     if (image != null) {
-      File? imageFile = await ImageCropper().cropImage(
+      File? imageFile = await ImageCropper.cropImage(
         sourcePath: image.path,
         compressQuality: 100,
       );
