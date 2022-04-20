@@ -65,9 +65,10 @@ class ImagePickerFormField extends FormField<File> {
                     ),
                   if (state.value != null)
                     Text(
-                      "Name: " + state.value!.path.split('/').last,
+                      "${((state.value?.lengthSync() ?? 0) / (1024 * 1024)).toStringAsFixed(2)} MB",
                       style: Theme.of(context).textTheme.caption!.copyWith(
                           color: Theme.of(context).colorScheme.secondary),
+                      textAlign: TextAlign.center,
                     ),
                   if (state.errorText != null)
                     Text(
