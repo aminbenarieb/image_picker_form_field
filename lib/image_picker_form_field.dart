@@ -44,7 +44,10 @@ class ImagePickerFormField extends FormField<File> {
                                 source: ImageSource.camera,
                                 imageQuality: 100,
                                 preferredCameraDevice: CameraDevice.front);
-                          cropImage(image, state);
+                          final croppedImage = await cropImage(image, state);
+                          if (croppedImage != null && onSaved != null) {
+                            onSaved(croppedImage);
+                          }
                         });
                         await showDialog(
                             context: context,
@@ -82,13 +85,17 @@ class ImagePickerFormField extends FormField<File> {
               );
             });
 
-  static Future<void> cropImage(XFile? image, state) async {
+  static Future<File?> cropImage(XFile? image, state) async {
     if (image != null) {
       File? imageFile = await ImageCropper.cropImage(
         sourcePath: image.path,
         compressQuality: 100,
       );
-      if (imageFile != null) state.didChange(File(imageFile.path));
+      if (imageFile != null) {
+        state.didChange(File(imageFile.path));
+        return imageFile;
+      }
     }
+    return null;
   }
 }
