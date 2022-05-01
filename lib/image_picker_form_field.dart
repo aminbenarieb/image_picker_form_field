@@ -6,15 +6,39 @@ import 'package:image_picker/image_picker.dart';
 
 import 'ImageSourceSelectionDialog.dart';
 
+class ImagePickerFormFieldCroppingConfiguration {
+  final int? maxWidth;
+  final int? maxHeight;
+  final CropAspectRatio? aspectRatio;
+  final CropStyle cropStyle;
+  final ImageCompressFormat compressFormat;
+  final int compressQuality;
+  final AndroidUiSettings? androidUiSettings;
+  final IOSUiSettings? iosUiSettings;
+
+  ImagePickerFormFieldCroppingConfiguration({
+    this.maxWidth,
+    this.maxHeight,
+    this.aspectRatio = const CropAspectRatio(ratioX: 1, ratioY: 1),
+    this.cropStyle = CropStyle.rectangle,
+    this.compressFormat = ImageCompressFormat.jpg,
+    this.compressQuality = 90,
+    this.androidUiSettings,
+    this.iosUiSettings,
+  });
+}
+
 class ImagePickerFormField extends FormField<File> {
   final bool previewEnabled;
   final Widget child;
+  final ImagePickerFormFieldCroppingConfiguration? croppingConfiguration;
   ImagePickerFormField(
       {required BuildContext context,
       FormFieldSetter<File>? onSaved,
       FormFieldValidator<File>? validator,
       File? initialValue,
       AutovalidateMode autovalidateMode = AutovalidateMode.always,
+      this.croppingConfiguration,
       required this.previewEnabled,
       required this.child})
       : super(
@@ -44,7 +68,8 @@ class ImagePickerFormField extends FormField<File> {
                                 source: ImageSource.camera,
                                 imageQuality: 100,
                                 preferredCameraDevice: CameraDevice.front);
-                          final croppedImage = await cropImage(image, state);
+                          final croppedImage = await cropImage(
+                              image, state, croppingConfiguration);
                           if (croppedImage != null && onSaved != null) {
                             onSaved(croppedImage);
                           }
@@ -85,12 +110,26 @@ class ImagePickerFormField extends FormField<File> {
               );
             });
 
-  static Future<File?> cropImage(XFile? image, state) async {
+  static Future<File?> cropImage(
+    XFile? image,
+    state,
+    ImagePickerFormFieldCroppingConfiguration? croppingConfiguration,
+  ) async {
     if (image != null) {
-      File? imageFile = await ImageCropper.cropImage(
-        sourcePath: image.path,
-        compressQuality: 100,
-      );
+      File? imageFile = croppingConfiguration != null
+          ? await ImageCropper.cropImage(
+              maxHeight: croppingConfiguration.maxHeight,
+              maxWidth: croppingConfiguration.maxWidth,
+              compressFormat: croppingConfiguration.compressFormat,
+              compressQuality: croppingConfiguration.compressQuality,
+              sourcePath: image.path,
+              cropStyle: croppingConfiguration.cropStyle,
+              aspectRatio: croppingConfiguration.aspectRatio,
+            )
+          : await ImageCropper.cropImage(
+              sourcePath: image.path,
+              compressQuality: 100,
+            );
       if (imageFile != null) {
         state.didChange(File(imageFile.path));
         return imageFile;
